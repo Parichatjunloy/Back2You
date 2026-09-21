@@ -1,3 +1,7 @@
+-- Back2You cloud database schema
+-- Sanitized from local phpMyAdmin dump for cloud deployment.
+-- Keeps schema, roles, and categories; removes users and transactional/test data.
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.0
 -- https://www.phpmyadmin.net/
@@ -8,6 +12,7 @@
 -- PHP Version: 7.4.33
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET SESSION sql_require_primary_key = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -40,24 +45,7 @@ CREATE TABLE `activity_logs` (
 -- Dumping data for table `activity_logs`
 --
 
-INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `description`, `ip_address`, `created_at`) VALUES
-(1, 4, 'lost_item_approved', 'อนุมัติประกาศของหาย “แมวนักกิน” #3', NULL, '2026-09-20 03:08:51'),
-(2, 4, 'found_item_approved', 'อนุมัติประกาศของพบ “แมวสีขาวดำ” #4', NULL, '2026-09-20 03:20:56'),
-(3, 4, 'item_match_confirmed', 'ยืนยันคู่ของหาย #2 กับของพบ #4', NULL, '2026-09-20 03:33:32'),
-(4, 4, 'lost_item_approved', 'อนุมัติประกาศของหาย “แมวเป้า” #4', NULL, '2026-09-20 03:40:10'),
-(5, 4, 'item_match_confirmed', 'ยืนยันคู่ของหาย #4 กับของพบ #3', NULL, '2026-09-20 03:40:19'),
-(6, 4, 'claim_approved', 'อนุมัติคำขอรับของคืน #2', NULL, '2026-09-20 03:42:20'),
-(7, 4, 'return_scheduled', 'สร้างนัดคืนของ #2 สำหรับ Claim #2 ที่ บ้านกุ๊กๆ', NULL, '2026-09-20 03:45:13'),
-(8, 4, 'item_match_rejected', 'ปฏิเสธคู่ของหาย #1 กับของพบ #4', NULL, '2026-09-20 03:49:52'),
-(9, 4, 'item_match_rejected', 'ปฏิเสธคู่ของหาย #4 กับของพบ #2', NULL, '2026-09-20 03:49:59'),
-(10, 1, 'admin_category_created', 'Admin เพิ่มหมวดหมู่ \"สัตว์เลี้ยง\"', NULL, '2026-09-20 05:28:27'),
-(11, 1, 'admin_category_deleted', 'Admin ลบหมวดหมู่ \"สัตว์เลี้ยง\"', NULL, '2026-09-20 05:29:13'),
-(12, 1, 'admin_complaint_status_updated', 'Admin เปลี่ยนสถานะการร้องเรียน \"สีจืดเกินไป\" จาก pending เป็น resolved', NULL, '2026-09-20 06:18:51'),
-(13, 4, 'found_item_approved', 'อนุมัติประกาศของพบ “สุนัข” #5', NULL, '2026-09-20 07:39:11'),
-(14, 4, 'lost_item_approved', 'อนุมัติประกาศของหาย “หมาเซา” #5', NULL, '2026-09-20 07:43:14'),
-(15, 4, 'item_match_confirmed', 'ยืนยันคู่ของหาย #5 กับของพบ #5', NULL, '2026-09-20 07:43:37'),
-(16, 4, 'claim_approved', 'อนุมัติคำขอรับของคืน #3', NULL, '2026-09-20 07:45:25'),
-(17, 4, 'return_scheduled', 'สร้างนัดคืนของ #3 สำหรับ Claim #3 ที่ มาลา', NULL, '2026-09-20 07:45:54');
+-- Test data removed from `activity_logs` for cloud deployment.
 
 -- --------------------------------------------------------
 
@@ -111,10 +99,7 @@ CREATE TABLE `claims` (
 -- Dumping data for table `claims`
 --
 
-INSERT INTO `claims` (`id`, `found_item_id`, `user_id`, `message`, `status`, `reviewed_by`, `reviewed_at`, `staff_note`, `created_at`, `updated_at`) VALUES
-(1, 1, 6, 'มีหนวดสีดำ 1 เส้น มีปลอกคอสีแดง ตัวหนักมาก', 'approved', 4, '2026-09-19 22:37:39', NULL, '2026-09-19 15:28:57', '2026-09-19 15:37:39'),
-(2, 3, 2, 'อารมณ์ไบโพลา มีปลอกคอลูกปัด', 'approved', 4, '2026-09-20 10:42:20', NULL, '2026-09-20 03:41:35', '2026-09-20 03:42:20'),
-(3, 5, 2, 'หมาไซบีเรีย เพศชาย ชื่อโคล่า', 'approved', 4, '2026-09-20 14:45:25', NULL, '2026-09-20 07:44:54', '2026-09-20 07:45:25');
+-- Test data removed from `claims` for cloud deployment.
 
 -- --------------------------------------------------------
 
@@ -140,8 +125,7 @@ CREATE TABLE `complaints` (
 -- Dumping data for table `complaints`
 --
 
-INSERT INTO `complaints` (`id`, `user_id`, `subject`, `description`, `related_lost_item_id`, `related_found_item_id`, `status`, `handled_by`, `staff_note`, `resolved_at`, `created_at`) VALUES
-(1, 6, 'สีจืดเกินไป', 'ช่วยตกแต่งให้ระบบดูมีสีสันให้หน่อย', NULL, NULL, 'resolved', 1, NULL, '2026-09-20 13:18:51', '2026-09-20 06:18:12');
+-- Test data removed from `complaints` for cloud deployment.
 
 -- --------------------------------------------------------
 
@@ -172,12 +156,7 @@ CREATE TABLE `found_items` (
 -- Dumping data for table `found_items`
 --
 
-INSERT INTO `found_items` (`id`, `user_id`, `category_id`, `title`, `description`, `contact`, `location`, `found_date`, `found_time`, `image`, `status`, `staff_note`, `approved_by`, `approved_at`, `created_at`, `updated_at`) VALUES
-(1, 4, 10, 'แมวนักเลง', 'แมวสีส้ม หน้าตานักเลงแบ๋ว หนัก7โล', '0834910946', 'บ้านแฮปปี้', '2026-09-01', NULL, '/image/1789826023759-a979a9759f3b.jpeg', 'returned', NULL, 4, '2026-09-19 21:11:31', '2026-09-19 13:53:43', '2026-09-19 16:01:02'),
-(2, 6, 10, 'สุนัขนั่งเส้า', 'สุนัขสีขาว เรียบร้อย ขี้กลัว', '0834910946', 'บ้านกุ๊กๆ', '2026-09-04', NULL, '/image/1789835887868-c3f062a855d5.jpeg', 'approved', NULL, 4, '2026-09-19 23:43:39', '2026-09-19 16:38:07', '2026-09-19 16:43:39'),
-(3, 6, 10, 'แมวเป้า', 'แมวลายวัว นิสัยไบโพลา', '0834910946', 'บ้านกุ๊กๆ', '2026-09-03', NULL, '/image/1789836169641-188c78d4c43d.jpeg', 'returned', NULL, 4, '2026-09-19 23:43:25', '2026-09-19 16:42:49', '2026-09-20 03:45:46'),
-(4, 2, 10, 'แมวสีขาวดำ', 'แมวสีขาวดำ ขี้เซา', '0959977072', 'บ้านกุ๊กๆ', '2026-09-02', NULL, '/image/1789874431615-e4519b81820e.jpg', 'approved', NULL, 4, '2026-09-20 10:20:56', '2026-09-20 03:20:31', '2026-09-20 03:20:56'),
-(5, 6, 10, 'สุนัข', 'สุนัขพันธุ์ไซบีเรีย น้ำลายบูด', '0834910946', 'มาลา', '2026-09-05', NULL, '/image/1789889654537-c0abbb1e0e06ba2cb7f34879.jpg', 'returned', NULL, 4, '2026-09-20 14:39:11', '2026-09-20 07:34:14', '2026-09-20 07:46:22');
+-- Test data removed from `found_items` for cloud deployment.
 
 -- --------------------------------------------------------
 
@@ -196,14 +175,7 @@ CREATE TABLE `found_item_images` (
 -- Dumping data for table `found_item_images`
 --
 
-INSERT INTO `found_item_images` (`id`, `found_item_id`, `image_path`, `created_at`) VALUES
-(1, 1, '/image/1789826023759-a979a9759f3b.jpeg', '2026-09-19 13:53:43'),
-(2, 1, '/image/1789826023763-506c87e26b02.jpeg', '2026-09-19 13:53:43'),
-(3, 1, '/image/1789826023766-4bfe5d63ae56.jpeg', '2026-09-19 13:53:43'),
-(4, 2, '/image/1789835887868-c3f062a855d5.jpeg', '2026-09-19 16:38:07'),
-(5, 3, '/image/1789836169641-188c78d4c43d.jpeg', '2026-09-19 16:42:49'),
-(6, 4, '/image/1789874431615-e4519b81820e.jpg', '2026-09-20 03:20:31'),
-(7, 5, '/image/1789889654537-c0abbb1e0e06ba2cb7f34879.jpg', '2026-09-20 07:34:14');
+-- Test data removed from `found_item_images` for cloud deployment.
 
 -- --------------------------------------------------------
 
@@ -226,12 +198,7 @@ CREATE TABLE `item_matches` (
 -- Dumping data for table `item_matches`
 --
 
-INSERT INTO `item_matches` (`id`, `lost_item_id`, `found_item_id`, `match_score`, `status`, `reviewed_by`, `reviewed_at`, `created_at`) VALUES
-(1, 2, 4, 64, 'confirmed', 4, '2026-09-20 10:33:32', '2026-09-20 03:33:32'),
-(2, 4, 3, 77, 'confirmed', 4, '2026-09-20 10:40:19', '2026-09-20 03:40:19'),
-(3, 1, 4, 55, 'rejected', 4, '2026-09-20 10:49:52', '2026-09-20 03:49:52'),
-(4, 4, 2, 50, 'rejected', 4, '2026-09-20 10:49:59', '2026-09-20 03:49:59'),
-(5, 5, 5, 65, 'confirmed', 4, '2026-09-20 14:43:37', '2026-09-20 07:43:37');
+-- Test data removed from `item_matches` for cloud deployment.
 
 -- --------------------------------------------------------
 
@@ -252,9 +219,7 @@ CREATE TABLE `login_tokens` (
 -- Dumping data for table `login_tokens`
 --
 
-INSERT INTO `login_tokens` (`id`, `user_id`, `token`, `expires_at`, `used_at`, `created_at`) VALUES
-(33, 4, '099cdf5cf49137767ed1af5aeb9a81d4b6641c157d44f4ecba6541da0590f0bc', '2026-09-19 21:28:26', NULL, '2026-09-19 14:13:26'),
-(34, 6, '2517e0694639294ef4e667242238c9fdc7b5bbdf13c1c08a8c622b7710808593', '2026-09-19 22:37:08', NULL, '2026-09-19 15:22:08');
+-- Test data removed from `login_tokens` for cloud deployment.
 
 -- --------------------------------------------------------
 
@@ -284,12 +249,7 @@ CREATE TABLE `lost_items` (
 -- Dumping data for table `lost_items`
 --
 
-INSERT INTO `lost_items` (`id`, `user_id`, `category_id`, `title`, `description`, `location`, `lost_date`, `lost_time`, `image`, `status`, `staff_note`, `approved_by`, `approved_at`, `created_at`, `updated_at`) VALUES
-(1, 4, 10, 'แมวสีขาวสลิด', 'อ้วนๆ\n\nช่องทางติดต่อ: 0834910946', 'บ้าน', '2026-09-01', NULL, '/image/1789815502665-95e75aca35a316ac.jpg', 'approved', NULL, 4, '2026-09-19 19:50:31', '2026-09-19 10:58:22', '2026-09-19 12:50:31'),
-(2, 6, 10, 'แมวขาวดำ', 'สีขาวดำ ขี้เซา\n\nช่องทางติดต่อ: 0834910946', 'บ้านกุ๊กๆ', '2026-09-02', NULL, '/image/1789835388671-8c1a89a58395.jpg', 'approved', NULL, 4, '2026-09-19 23:33:29', '2026-09-19 16:29:48', '2026-09-19 16:33:29'),
-(3, 6, 10, 'แมวนักกิน', 'สีส้ม ตัวกลมๆ\n\nช่องทางติดต่อ: 0834910946', 'บ้านแฮปปี้', '2026-09-17', '10:10:00', '/image/1789873694490-b4de2af567a2.jpeg', 'approved', NULL, 4, '2026-09-20 10:08:51', '2026-09-20 03:08:14', '2026-09-20 03:08:51'),
-(4, 2, 10, 'แมวเป้า', 'สีขาวดำ อารมณ์ขี้วีน\n\nช่องทางติดต่อ: 0959977072', 'บ้านกุ๊กๆ', '2026-09-05', NULL, '/image/1789875586368-1029d0691ae8.jpeg', 'approved', NULL, 4, '2026-09-20 10:40:10', '2026-09-20 03:39:46', '2026-09-20 03:40:10'),
-(5, 2, 10, 'หมาเซา', 'สุนัขพันธุ์ไซบีเรีย สีขาวเทา ตัวใหญ่ เพศผู้\n\nช่องทางติดต่อ: 0959977072', 'มาลา', '2026-09-05', NULL, '/image/1789890162589-59b66b898db560d6f5857a37.jpg', 'approved', NULL, 4, '2026-09-20 14:43:14', '2026-09-20 07:42:42', '2026-09-20 07:43:14');
+-- Test data removed from `lost_items` for cloud deployment.
 
 -- --------------------------------------------------------
 
@@ -308,12 +268,7 @@ CREATE TABLE `lost_item_images` (
 -- Dumping data for table `lost_item_images`
 --
 
-INSERT INTO `lost_item_images` (`id`, `lost_item_id`, `image_path`, `created_at`) VALUES
-(1, 1, '/image/1789815502665-95e75aca35a316ac.jpg', '2026-09-19 10:58:22'),
-(2, 2, '/image/1789835388671-8c1a89a58395.jpg', '2026-09-19 16:29:48'),
-(3, 3, '/image/1789873694490-b4de2af567a2.jpeg', '2026-09-20 03:08:14'),
-(4, 4, '/image/1789875586368-1029d0691ae8.jpeg', '2026-09-20 03:39:46'),
-(5, 5, '/image/1789890162589-59b66b898db560d6f5857a37.jpg', '2026-09-20 07:42:42');
+-- Test data removed from `lost_item_images` for cloud deployment.
 
 -- --------------------------------------------------------
 
@@ -354,37 +309,7 @@ CREATE TABLE `notifications` (
 -- Dumping data for table `notifications`
 --
 
-INSERT INTO `notifications` (`id`, `user_id`, `title`, `message`, `type`, `related_id`, `is_read`, `created_at`) VALUES
-(1, 6, 'ประกาศได้รับการอนุมัติ', 'ประกาศของหาย “แมวขาวดำ” ได้รับการอนุมัติแล้ว', 'lost_item_approved', 2, 1, '2026-09-19 16:33:29'),
-(2, 4, 'มีประกาศของพบใหม่', 'มีประกาศของพบ \"แมวเป้า\" รอการตรวจสอบ', 'staff_found_item_pending', 3, 1, '2026-09-19 16:42:49'),
-(3, 6, 'ประกาศได้รับการอนุมัติ', 'ประกาศของที่พบ “แมวเป้า” ได้รับการอนุมัติแล้ว', 'found_item_approved', 3, 1, '2026-09-19 16:43:25'),
-(4, 6, 'ประกาศได้รับการอนุมัติ', 'ประกาศของที่พบ “สุนัขนั่งเส้า” ได้รับการอนุมัติแล้ว', 'found_item_approved', 2, 1, '2026-09-19 16:43:39'),
-(5, 4, 'มีประกาศของหายใหม่', 'มีประกาศของหาย \"แมวนักกิน\" รอการตรวจสอบ', 'staff_lost_item_pending', 3, 1, '2026-09-20 03:08:14'),
-(6, 6, 'ประกาศได้รับการอนุมัติ', 'ประกาศของหาย “แมวนักกิน” ได้รับการอนุมัติแล้ว', 'lost_item_approved', 3, 1, '2026-09-20 03:08:51'),
-(7, 4, 'มีประกาศของพบใหม่', 'มีประกาศของพบ \"แมวสีขาวดำ\" รอการตรวจสอบ', 'staff_found_item_pending', 4, 1, '2026-09-20 03:20:31'),
-(8, 2, 'ประกาศได้รับการอนุมัติ', 'ประกาศของที่พบ “แมวสีขาวดำ” ได้รับการอนุมัติแล้ว', 'found_item_approved', 4, 1, '2026-09-20 03:20:56'),
-(9, 4, 'มีประกาศของหายใหม่', 'มีประกาศของหาย \"แมวเป้า\" รอการตรวจสอบ', 'staff_lost_item_pending', 4, 1, '2026-09-20 03:39:46'),
-(10, 2, 'ประกาศได้รับการอนุมัติ', 'ประกาศของหาย “แมวเป้า” ได้รับการอนุมัติแล้ว', 'lost_item_approved', 4, 1, '2026-09-20 03:40:10'),
-(11, 2, 'พบรายการที่อาจเป็นของคุณ', 'Staff ตรวจพบว่าประกาศของพบ “แมวเป้า” อาจตรงกับของหาย “แมวเป้า” ของคุณ กดเพื่อดูรายละเอียดและส่งคำขอรับของคืนได้', 'match_confirmed', 3, 1, '2026-09-20 03:40:19'),
-(12, 4, 'มีคำขอรับของคืนใหม่', 'มีคำขอรับของคืนใหม่สำหรับประกาศหมายเลข 3 รอการตรวจสอบ', 'staff_claim_pending', 2, 1, '2026-09-20 03:41:35'),
-(13, 2, 'คำขอรับของคืนได้รับการอนุมัติ', 'Staff อนุมัติคำขอรับของคืนของคุณแล้ว กรุณารอการนัดคืนของ', 'claim_approved', 2, 1, '2026-09-20 03:42:20'),
-(14, 2, 'มีนัดคืนของใหม่', 'Staff สร้างนัดคืนของวันที่ 2026-09-10 10:44 ที่ บ้านกุ๊กๆ', 'return_scheduled', 2, 1, '2026-09-20 03:45:13'),
-(15, 4, 'ผู้ใช้ยืนยันรับของคืนแล้ว', 'ผู้ใช้ยืนยันการรับของคืนสำหรับรายการคืนหมายเลข 2 แล้ว', 'staff_return_confirmed', 2, 1, '2026-09-20 03:45:46'),
-(16, 1, 'มีข้อร้องเรียนใหม่', 'มีข้อร้องเรียนใหม่: สีจืดเกินไป', 'complaint_created', 1, 0, '2026-09-20 06:18:12'),
-(17, 6, 'อัปเดตสถานะการร้องเรียน', 'เรื่อง \"สีจืดเกินไป\" เปลี่ยนสถานะเป็น resolved', 'complaint_status_updated', 1, 1, '2026-09-20 06:18:51'),
-(18, 1, 'มีประกาศของพบใหม่', 'มีประกาศของพบ \"สุนัข\" รอการตรวจสอบ', 'staff_found_item_pending', 5, 0, '2026-09-20 07:34:14'),
-(19, 4, 'มีประกาศของพบใหม่', 'มีประกาศของพบ \"สุนัข\" รอการตรวจสอบ', 'staff_found_item_pending', 5, 1, '2026-09-20 07:34:14'),
-(20, 6, 'ประกาศได้รับการอนุมัติ', 'ประกาศของที่พบ “สุนัข” ได้รับการอนุมัติแล้ว', 'found_item_approved', 5, 0, '2026-09-20 07:39:11'),
-(21, 1, 'มีประกาศของหายใหม่', 'มีประกาศของหาย \"หมาเซา\" รอการตรวจสอบ', 'staff_lost_item_pending', 5, 0, '2026-09-20 07:42:42'),
-(22, 4, 'มีประกาศของหายใหม่', 'มีประกาศของหาย \"หมาเซา\" รอการตรวจสอบ', 'staff_lost_item_pending', 5, 1, '2026-09-20 07:42:42'),
-(23, 2, 'ประกาศได้รับการอนุมัติ', 'ประกาศของหาย “หมาเซา” ได้รับการอนุมัติแล้ว', 'lost_item_approved', 5, 1, '2026-09-20 07:43:14'),
-(24, 2, 'พบรายการที่อาจเป็นของคุณ', 'Staff ตรวจพบว่าประกาศของพบ “สุนัข” อาจตรงกับของหาย “หมาเซา” ของคุณ กดเพื่อดูรายละเอียดและส่งคำขอรับของคืนได้', 'match_confirmed', 5, 1, '2026-09-20 07:43:37'),
-(25, 1, 'มีคำขอรับของคืนใหม่', 'มีคำขอรับของคืนใหม่สำหรับประกาศหมายเลข 5 รอการตรวจสอบ', 'staff_claim_pending', 3, 0, '2026-09-20 07:44:54'),
-(26, 4, 'มีคำขอรับของคืนใหม่', 'มีคำขอรับของคืนใหม่สำหรับประกาศหมายเลข 5 รอการตรวจสอบ', 'staff_claim_pending', 3, 0, '2026-09-20 07:44:54'),
-(27, 2, 'คำขอรับของคืนได้รับการอนุมัติ', 'Staff อนุมัติคำขอรับของคืนของคุณแล้ว กรุณารอการนัดคืนของ', 'claim_approved', 3, 1, '2026-09-20 07:45:25'),
-(28, 2, 'มีนัดคืนของใหม่', 'Staff สร้างนัดคืนของวันที่ 2026-09-06 20:45 ที่ มาลา', 'return_scheduled', 3, 1, '2026-09-20 07:45:54'),
-(29, 1, 'ผู้ใช้ยืนยันรับของคืนแล้ว', 'ผู้ใช้ยืนยันการรับของคืนสำหรับรายการคืนหมายเลข 3 แล้ว', 'staff_return_confirmed', 3, 0, '2026-09-20 07:46:22'),
-(30, 4, 'ผู้ใช้ยืนยันรับของคืนแล้ว', 'ผู้ใช้ยืนยันการรับของคืนสำหรับรายการคืนหมายเลข 3 แล้ว', 'staff_return_confirmed', 3, 0, '2026-09-20 07:46:22');
+-- Test data removed from `notifications` for cloud deployment.
 
 -- --------------------------------------------------------
 
@@ -407,10 +332,7 @@ CREATE TABLE `ownership_proofs` (
 -- Dumping data for table `ownership_proofs`
 --
 
-INSERT INTO `ownership_proofs` (`id`, `claim_id`, `file_path`, `description`, `status`, `reviewed_by`, `reviewed_at`, `created_at`) VALUES
-(1, 1, '/image/1789831737441-1ddf0a6e6f0c.jpeg', NULL, 'approved', 4, '2026-09-19 22:37:39', '2026-09-19 15:28:57'),
-(2, 2, '/image/1789875695470-1b36d8fec767.jpeg', NULL, 'approved', 4, '2026-09-20 10:42:20', '2026-09-20 03:41:35'),
-(3, 3, '/image/1789890294974-18d6b658b7f7e4a134107211.jpg', NULL, 'approved', 4, '2026-09-20 14:45:25', '2026-09-20 07:44:54');
+-- Test data removed from `ownership_proofs` for cloud deployment.
 
 -- --------------------------------------------------------
 
@@ -436,10 +358,7 @@ CREATE TABLE `returns` (
 -- Dumping data for table `returns`
 --
 
-INSERT INTO `returns` (`id`, `claim_id`, `staff_id`, `return_date`, `return_location`, `receiver_name`, `note`, `status`, `user_confirmed`, `user_confirmed_at`, `created_at`) VALUES
-(1, 1, 4, '2026-09-03 22:00:00', 'บ้านเอ๋เอ๋', 'PARICHAT JUNLOY', '', 'completed', 1, '2026-09-19 23:01:02', '2026-09-19 15:56:55'),
-(2, 2, 4, '2026-09-10 10:44:00', 'บ้านกุ๊กๆ', 'Somchai Test', '', 'completed', 1, '2026-09-20 10:45:46', '2026-09-20 03:45:13'),
-(3, 3, 4, '2026-09-06 20:45:00', 'มาลา', 'Somchai Test', '', 'completed', 1, '2026-09-20 14:46:22', '2026-09-20 07:45:54');
+-- Test data removed from `returns` for cloud deployment.
 
 -- --------------------------------------------------------
 
@@ -486,11 +405,7 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `role_id`, `name`, `email`, `password`, `phone`, `profile_image`, `status`, `created_at`, `updated_at`) VALUES
-(1, 3, 'Test User', 'test@gmail.com', 'not-used', NULL, NULL, 'active', '2026-09-19 08:25:51', '2026-09-20 05:09:58'),
-(2, 1, 'Somchai Test', 'somchai123@gmail.com', 'd7c66ca9f4d9da17615a0b0ef3b56037299bc419968bfde4c179f999aad62f64', NULL, NULL, 'active', '2026-09-19 09:03:35', '2026-09-19 09:03:35'),
-(4, 2, 'ปาริ จันทร์ลอย', 'p.parichat310@gmail.com', '2be42b02171564ccd410ff49c4322f0616f7e3e2f8708ba7012164184aebf12d', NULL, NULL, 'active', '2026-09-19 09:29:05', '2026-09-19 15:36:03'),
-(6, 1, 'PARICHAT', 'ployparichat306@gmail.com', '1971149799615a631823993d1cc434f24af3f3b4b0e1c9b32d9e6d5f43b297bc', '0834910946', '/image/1789876794345-620319600a72.jpeg', 'active', '2026-09-19 15:22:01', '2026-09-20 04:00:09');
+-- Test data removed from `users` for cloud deployment.
 
 --
 -- Indexes for dumped tables
@@ -636,61 +551,61 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `claims`
 --
 ALTER TABLE `claims`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `complaints`
 --
 ALTER TABLE `complaints`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `found_items`
 --
 ALTER TABLE `found_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `found_item_images`
 --
 ALTER TABLE `found_item_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `item_matches`
 --
 ALTER TABLE `item_matches`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `login_tokens`
 --
 ALTER TABLE `login_tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `lost_items`
 --
 ALTER TABLE `lost_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `lost_item_images`
 --
 ALTER TABLE `lost_item_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `messages`
@@ -702,19 +617,19 @@ ALTER TABLE `messages`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `ownership_proofs`
 --
 ALTER TABLE `ownership_proofs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `returns`
 --
 ALTER TABLE `returns`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -726,7 +641,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- Constraints for dumped tables
