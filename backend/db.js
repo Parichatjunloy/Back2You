@@ -1,4 +1,6 @@
 const mysql = require("mysql2/promise");
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 
 const useSSL = process.env.DB_SSL === "true";
@@ -12,6 +14,7 @@ const pool = mysql.createPool({
 
   ...(useSSL && {
     ssl: {
+      ca: fs.readFileSync(path.join(__dirname, "ca.pem")),
       rejectUnauthorized: true,
     },
   }),
