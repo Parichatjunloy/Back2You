@@ -14,6 +14,8 @@ const path = require("path");
 const fs = require("fs");
 
 const { Resend } = require("resend");
+const { createClient } = require("@supabase/supabase-js");
+const WebSocket = require("ws");
 
 const pool = require("./db");
 
@@ -89,46 +91,7 @@ app.use(
 // MULTER
 // ========================================
 
-const storage =
-  multer.diskStorage({
-    destination: (
-      req,
-      file,
-      cb
-    ) => {
-      cb(
-        null,
-        imageFolder
-      );
-    },
-
-    filename: (
-      req,
-      file,
-      cb
-    ) => {
-      const extensionByMime = {
-        "image/jpeg": ".jpg",
-        "image/jpg": ".jpg",
-        "image/png": ".png",
-      };
-
-      const extension =
-        extensionByMime[file.mimetype] || "";
-
-      const filename =
-        `${Date.now()}-${crypto
-          .randomBytes(12)
-          .toString(
-            "hex"
-          )}${extension}`;
-
-      cb(
-        null,
-        filename
-      );
-    },
-  });
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -165,6 +128,73 @@ const upload = multer({
     }
   },
 });
+
+// Supabase Storage: keep uploaded images across Render restarts.
+// Secret key is server-only; never expose it to the frontend.
+const SUPABASE_BUCKET = process.env.SUPABASE_BUCKET || "back2you-images";
+const SUPABASE_PROOFS_BUCKET = process.env.SUPABASE_PROOFS_BUCKET || "back2you-proofs";
+const supabase = process.env.SUPABASE_URL && process.env.SUPABASE_SECRET_KEY
+  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false },
+      realtime: { transport: WebSocket },
+    })
+  : null;
+
+async function uploadStorageFiles(req, res, next) {
+  const files = req.files || (req.file ? [req.file] : []);
+  if (!files.length) return next();
+  if (!supabase) return res.status(503).json({ message: "ยังไม่ได้ตั้งค่า Supabase Storage" });
+
+  const isProof = req.path === "/api/claims";
+  const bucket = isProof ? SUPABASE_PROOFS_BUCKET : SUPABASE_BUCKET;
+  const prefix = isProof ? "proofs" : req.path === "/api/profile/image" ? "profiles" : "items";
+  const uploaded = [];
+  try {
+    for (const file of files) {
+      const extension = file.mimetype === "image/png" ? ".png" : ".jpg";
+      const objectPath = `${prefix}/${Date.now()}-${crypto.randomBytes(16).toString("hex")}${extension}`;
+      const { error } = await supabase.storage.from(bucket).upload(objectPath, file.buffer, {
+        contentType: file.mimetype,
+        upsert: false,
+      });
+      if (error) throw error;
+      uploaded.push(objectPath);
+      file.storageUrl = isProof
+        ? `supabase-private:${objectPath}`
+        : supabase.storage.from(bucket).getPublicUrl(objectPath).data.publicUrl;
+    }
+    // Clean up uploaded objects if the database action fails.
+    res.once("finish", () => {
+      if (res.statusCode >= 400) {
+        supabase.storage.from(bucket).remove(uploaded).catch((error) =>
+          console.error("Supabase cleanup error:", error)
+        );
+      }
+    });
+    next();
+  } catch (error) {
+    console.error("Supabase upload error:", error);
+    if (uploaded.length) {
+      try { await supabase.storage.from(bucket).remove(uploaded); } catch (_) {}
+    }
+    return res.status(502).json({ message: "อัปโหลดรูปภาพไม่สำเร็จ กรุณาลองใหม่" });
+  }
+}
+
+async function signProofUrls(proofs) {
+  if (!supabase) return proofs;
+  return Promise.all(proofs.map(async (proof) => {
+    if (!String(proof.file_path || "").startsWith("supabase-private:")) return proof;
+    const objectPath = proof.file_path.slice("supabase-private:".length);
+    const { data, error } = await supabase.storage.from(SUPABASE_PROOFS_BUCKET)
+      .createSignedUrl(objectPath, 300);
+    if (error) {
+      console.error("Proof signed URL error:", error);
+      return { ...proof, file_path: null };
+    }
+    return { ...proof, file_path: data.signedUrl };
+  }));
+}
 
 // ========================================
 // HELPERS
@@ -706,6 +736,7 @@ app.post(
   "/api/profile/image",
   authenticateToken,
   upload.single("profileImage"),
+  uploadStorageFiles,
   async (req, res) => {
     try {
       const userId = Number(req.user.userId);
@@ -714,7 +745,7 @@ app.post(
         return res.status(400).json({ message: "กรุณาเลือกรูปโปรไฟล์" });
       }
 
-      const profileImage = `/image/${req.file.filename}`;
+      const profileImage = req.file.storageUrl;
 
       const [oldRows] = await pool.query(
         "SELECT profile_image FROM users WHERE id = ? LIMIT 1",
@@ -726,19 +757,19 @@ app.post(
         [profileImage, userId]
       );
 
+      // Remove the previous profile image from Supabase after DB update.
+      // Legacy /image/ files are not in Supabase and cannot be recovered here.
       const oldImage = oldRows[0]?.profile_image;
-      if (oldImage && oldImage.startsWith("/image/")) {
-        const oldFilename = path.basename(oldImage);
-        const oldPath = path.join(imageFolder, oldFilename);
-
-        if (
-          oldFilename !== req.file.filename &&
-          fs.existsSync(oldPath)
-        ) {
+      if (oldImage && oldImage !== profileImage && supabase) {
+        const publicPrefix = `${process.env.SUPABASE_URL.replace(/\/$/, "")}/storage/v1/object/public/${SUPABASE_BUCKET}/profiles/`;
+        if (oldImage.startsWith(publicPrefix)) {
+          const oldObjectPath = `profiles/${oldImage.slice(publicPrefix.length).split("?")[0]}`;
           try {
-            fs.unlinkSync(oldPath);
-          } catch (unlinkError) {
-            console.warn("Delete Old Profile Image Error:", unlinkError);
+            const { error: removeError } = await supabase.storage
+              .from(SUPABASE_BUCKET).remove([oldObjectPath]);
+            if (removeError) console.warn("Old profile image cleanup:", removeError);
+          } catch (removeError) {
+            console.warn("Old profile image cleanup:", removeError);
           }
         }
       }
@@ -3564,6 +3595,7 @@ app.post(
     "images",
     3
   ),
+  uploadStorageFiles,
 
   async (
     req,
@@ -3642,7 +3674,7 @@ app.post(
 
       const firstImage =
         files.length > 0
-          ? `/image/${files[0].filename}`
+          ? files[0].storageUrl
           : null;
 
       connection =
@@ -3716,7 +3748,7 @@ app.post(
           `,
           [
             lostItemId,
-            `/image/${file.filename}`,
+            file.storageUrl,
           ]
         );
       }
@@ -3779,6 +3811,7 @@ app.post(
     "images",
     3
   ),
+  uploadStorageFiles,
 
   async (
     req,
@@ -3968,7 +4001,7 @@ app.post(
 
       const firstImage =
         files.length > 0
-          ? `/image/${files[0].filename}`
+          ? files[0].storageUrl
           : null;
 
       // ====================================
@@ -4052,7 +4085,7 @@ app.post(
           `,
           [
             foundItemId,
-            `/image/${file.filename}`,
+            file.storageUrl,
           ]
         );
       }
@@ -4264,6 +4297,7 @@ app.post(
   authenticateToken,
   requireUser,
   upload.array("proofs", 3),
+  uploadStorageFiles,
   async (req, res) => {
     let connection;
     try {
@@ -4312,7 +4346,7 @@ app.post(
       for (const file of files) {
         await connection.query(
           `INSERT INTO ownership_proofs (claim_id, file_path, description, status) VALUES (?, ?, ?, 'pending')`,
-          [claimId, `/image/${file.filename}`, proofDescription || null]
+          [claimId, file.storageUrl, proofDescription || null]
         );
       }
 
@@ -4402,7 +4436,7 @@ app.get("/api/staff/claims/:id", authenticateToken, requireStaff, async (req, re
        FROM ownership_proofs WHERE claim_id = ? ORDER BY id ASC`,
       [claimId]
     );
-    return res.json({ claim: { ...rows[0], proofs } });
+    return res.json({ claim: { ...rows[0], proofs: await signProofUrls(proofs) } });
   } catch (error) {
     console.error("Staff Claim Detail Error:", error);
     return res.status(500).json({ message: "ไม่สามารถโหลดรายละเอียดคำขอได้" });
@@ -6653,6 +6687,8 @@ function validateRuntimeConfig() {
 
   if (!process.env.JWT_SECRET) missing.push("JWT_SECRET");
   if (!process.env.RESEND_API_KEY) missing.push("RESEND_API_KEY");
+  if (!process.env.SUPABASE_URL) missing.push("SUPABASE_URL");
+  if (!process.env.SUPABASE_SECRET_KEY) missing.push("SUPABASE_SECRET_KEY");
 
   if (missing.length > 0) {
     throw new Error(
