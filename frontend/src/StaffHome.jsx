@@ -4,7 +4,17 @@ import {
   useState,
 } from "react";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || `${API_BASE}`;
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000").replace(/\/$/, "");
+
+// รองรับทั้ง Supabase URL และพาธรูปภาพจาก Backend
+const resolveImageUrl = (value) => {
+  if (!value) return null;
+  const image = String(value).trim();
+  if (!image) return null;
+  if (/^https?:\/\//i.test(image)) return image;
+  if (image.startsWith("/")) return `${API_BASE}${image}`;
+  return `${API_BASE}/${image}`;
+};
 
 function StaffHome({
   user,
@@ -478,29 +488,7 @@ function StaffHome({
     return "bg-amber-50 text-amber-700 border-amber-100";
   };
 
-  const getMatchImage = (item) => {
-    if (!item?.image) return null;
-
-    const image = String(item.image).trim();
-
-    if (
-      image.startsWith("http://") ||
-      image.startsWith("https://")
-    ) {
-      return image;
-    }
-
-    // Backend เก็บรูปเป็น /image/filename อยู่แล้ว
-    if (image.startsWith("/image/")) {
-      return `${API_BASE}${image}`;
-    }
-
-    if (image.startsWith("image/")) {
-      return `${API_BASE}/${image}`;
-    }
-
-    return `${API_BASE}/image/${image.replace(/^\/+/, "")}`;
-  };
+  const getMatchImage = (item) => resolveImageUrl(item?.image);
 
   const handleMatchReview = async (match, status) => {
     const token = localStorage.getItem("back2you_token");
@@ -2509,7 +2497,7 @@ function StaffHome({
                                     >
                                       {item.image ? (
                                         <img
-                                          src={`${API_BASE}${item.image}`}
+                                          src={resolveImageUrl(item.image)}
                                           alt={item.title}
                                           className="w-full h-full object-cover"
                                         />
@@ -2709,7 +2697,7 @@ function StaffHome({
                               >
                                 {item.image ? (
                                   <img
-                                    src={`${API_BASE}${item.image}`}
+                                    src={resolveImageUrl(item.image)}
                                     alt={item.title}
                                     className="w-full h-full object-cover"
                                   />
