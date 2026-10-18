@@ -4859,6 +4859,34 @@ app.patch(
         [item.found_item_id]
       );
 
+      // Close the corresponding lost post only when Staff has explicitly
+      // confirmed the match and the claimant owns that lost post.
+      // Never infer ownership from matching titles or categories alone.
+      const [confirmedLostMatches] = await connection.query(
+        `SELECT DISTINCT li.id
+         FROM item_matches im
+         INNER JOIN lost_items li ON li.id = im.lost_item_id
+         WHERE im.found_item_id = ?
+           AND im.status = 'confirmed'
+           AND li.user_id = ?
+           AND li.status IN ('approved', 'found')
+         FOR UPDATE`,
+        [item.found_item_id, userId]
+      );
+
+      if (confirmedLostMatches.length === 1) {
+        await connection.query(
+          `UPDATE lost_items
+           SET status = 'returned'
+           WHERE id = ? AND user_id = ? AND status IN ('approved', 'found')`,
+          [confirmedLostMatches[0].id, userId]
+        );
+      } else if (confirmedLostMatches.length > 1) {
+        console.warn(
+          `Return #${returnId}: multiple confirmed lost posts for found item #${item.found_item_id}; manual review required`
+        );
+      }
+
       await createStaffNotifications(connection, {
       title: "ผู้ใช้ยืนยันรับของคืนแล้ว",
       message: `ผู้ใช้ยืนยันการรับของคืนสำหรับรายการคืนหมายเลข ${returnId} แล้ว`,
